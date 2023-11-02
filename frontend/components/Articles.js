@@ -4,46 +4,62 @@ import PT from 'prop-types'
 
 export default function Articles(props) {
   // ✨ where are my props? Destructure them here
-  const {articles, getArticles, deleteArticle,setCurrentArticleId, currentArticleId,  } = props;
+  const {articles, getArticles, deleteArticle,setCurrentArticleId, currentArticleId, article_id,setArticles, currentArticle } = props;
 
   // ✨ implement conditional logic: if no token exists
   // we should render a Navigate to login screen (React Router v.6)
    const token = localStorage.getItem('token')
-
-
-  useEffect(() => {
-    // ✨ grab the articles here, on first render only
-    if(token) {
-      getArticles();
-    }
-  }, []);
    if(!token) {
     return <Navigate to='/' /> 
    }
 
+
+  useEffect(() => {
+    // ✨ grab the articles here, on first render only
+    console.log('componentran:', getArticles())
+    getArticles(article_id);
+      
+  
+  },[token]);
+
+
+
+  
+  
   return (
+    
     // ✨ fix the JSX: replace `Function.prototype` with actual functions
     // and use the articles prop to generate articles
     <div className="articles">
       <h2>Articles</h2>
       {
         !articles.length
-          ? 'No articles yet'
-          : articles.map(art => {
+          ? 'No articles yet' 
+          
+          : articles.map((art)  => {
+            
             return (
               <div className="article" key={art.article_id}>
                 <div>
                   <h3>{art.title}</h3>
                   <p>{art.text}</p>
-                  <p>Topic: {art.topic}</p>
+                  <p> Topic: {art.topic}</p>
                 </div>
                 <div>
-                  <button disabled={currentArticleId !== art.article.id} onClick={() => setCurrentArticleId(art.article_id)}>Edit</button>
-                  <button disabled={currentArticleId !== art.article_id} onClick={() => deleteArticle(art.article_id)}>Delete</button>
+                  
+                   <button   onClick={() => setCurrentArticleId({art: article_id})  (console.log('button was clicked', art))}> 
+                    
+                    Edit
+                  </button>
+              
+                  <button  onClick={() => deleteArticle(art.article_id)}>Delete</button>
                 </div>
               </div>
+            
             )
+          
           })
+          
       }
     </div>
   )
