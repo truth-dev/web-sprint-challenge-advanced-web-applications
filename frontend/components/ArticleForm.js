@@ -16,21 +16,24 @@ const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, curren
     // Every time the `currentArticle` prop changes, we should check it for truthiness:
     // if it's truthy, we should set its title, text and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
-    if(currentArticle) {
+ 
+
+     if(currentArticle) {
       
-      setValues({
-        title: currentArticle.title, 
-        text: currentArticle.text, 
-        topic: currentArticle.topic
+       setValues({
+         title: {currentArticle:title}, 
+         text: {currentArticle: text}, 
+         topic: {currentArticle:topic}
       })
 
     }else {
-      setValues(initialFormValues);
-    }
-  }, [currentArticle])
+       setValues(initialFormValues);
+     }
+   }, [currentArticle])
 
   const onChange = evt => {
     console.log('on change:',values)
+    
     const {id, value} = evt.target
   setValues({
     ...values,
@@ -44,15 +47,17 @@ const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, curren
     // ✨ implement
     // We must submit a new post or update an existing one,
     // depending on the truthyness of the `currentArticle` prop.
-     evt.preventDefault();
-      if(currentArticle) {
-        
-     updateArticle(values)
-      }else{
-        postArticle(values);
-      }
-      setValues(initialFormValues);
-    }
+    evt.preventDefault();
+  
+
+  if(currentArticle) {
+    updateArticle({ article_id: currentArticle.article_id, article: values });
+  } else {
+    postArticle(values);
+  }
+  
+  setValues(initialFormValues);
+    };
 
   const isDisabled = () => {
     // ✨ implement

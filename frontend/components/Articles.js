@@ -4,7 +4,7 @@ import PT from 'prop-types'
 
 export default function Articles(props) {
   // ✨ where are my props? Destructure them here
-  const {articles, getArticles, deleteArticle,setCurrentArticleId, currentArticleId, article_id,setArticles, currentArticle } = props;
+  const {articles, getArticles, deleteArticle,setCurrentArticleId,updateArticle } = props;
 
   // ✨ implement conditional logic: if no token exists
   // we should render a Navigate to login screen (React Router v.6)
@@ -17,12 +17,14 @@ export default function Articles(props) {
   useEffect(() => {
     // ✨ grab the articles here, on first render only
     console.log('componentran:', getArticles())
-    getArticles(article_id);
+    getArticles();
       
   
-  },[token]);
+  },[]);
 
-
+const handleButtonClick = (data) => {
+  console.log('Button click with data', data)
+}
 
   
   
@@ -47,7 +49,7 @@ export default function Articles(props) {
                 </div>
                 <div>
                   
-                   <button   onClick={() => setCurrentArticleId({art: article_id})  (console.log('button was clicked', art))}> 
+                   <button   onClick={() => handleButtonClick(art)}> 
                     
                     Edit
                   </button>
