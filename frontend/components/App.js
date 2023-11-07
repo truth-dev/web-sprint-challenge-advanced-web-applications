@@ -50,13 +50,11 @@ export default function App() {
         localStorage.setItem("token", res.data.token);
         setMessage(res.data.message);
         redirectToArticles();
+        setSpinnerOn(false);
       })
       .catch((err) => {
         console.log("Login failed:", err);
-        setMessage(res.data.message);
-      })
-      .finally(() => {
-        setSpinnerOn(false);
+        setMessage(err.response.message);
       });
   };
 
@@ -69,80 +67,66 @@ export default function App() {
     // If something goes wrong, check the status of the response:
     // if it's a 401 the token might have gone bad, and we should redirect to login.
     // Don't forget to turn off the spinner!
+
     setMessage("");
     setSpinnerOn(true);
-  
+
     axiosWithAuth()
       .get(articlesUrl)
       .then((res) => {
         setArticles(res.data.articles);
-        console.log('rude:',res.data)
+        console.log("rude:", res.data);
         setMessage(res.data.message);
-       
-      })
-      .then(() => {
         setSpinnerOn(false);
       })
       .catch((err) => {
-        console.log("Error:", err);
-       
-     
+        console.error(err);
+        redirectToLogin();
         setSpinnerOn(false);
-
       });
-    }
+  };
+
   const postArticle = (article) => {
     // ✨ implement
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+    setMessage("");
     setSpinnerOn(true);
     axiosWithAuth()
       .post(articlesUrl, article)
       .then((res) => {
         console.log("response:", res.data);
+
+        setArticles([...articles, res.data.article]);
         setMessage(res.data.message);
-        setArticles((prevArticles) => [...prevArticles, res.data.article]);
+        setSpinnerOn(false);
       })
       .catch((err) => {
-        setMessage(err.response);
-      })
-      .finally(() => {
+        console.error(err);
+        setMessage(err.response.message);
         setSpinnerOn(false);
       });
   };
 
   const updateArticle = ({ article_id, article }) => {
-    // If currentArticle is null or undefined, handle the "create" mode
+    setMessage("");
     setSpinnerOn(true);
 
     axiosWithAuth()
       .put(`${articlesUrl}/${article_id}`, article)
       .then((res) => {
-        // Log the response data to see what the API is returning
-        console.log('Response from data:', res.data);
-  
-        // Update the articles state based on the response
-        const updatedArticles = articles.map((art) => {
-          return art.article_id === article_id ? res.data.article : art;
+        setArticles((prevArticles) => {
+          return prevArticles.map((art) =>
+            art.article_id === article_id ? res.data.article : art
+          );
         });
-        setArticles(updatedArticles);
-  
-        // Set the success message from the API response
+
         setMessage(res.data.message);
-  
-        // Log the updated articles to verify they are correct
-        console.log('Updated articles:', updatedArticles);
+        setSpinnerOn(false);
       })
       .catch((err) => {
-        // Log any API errors
-        console.error('API Error:', err);
-        
-        // Set an error message
-        setMessage('Failed to update article.');
-      })
-      .finally(() => {
-        // Turn off the spinner after the API call is complete
+        console.error(err);
         setSpinnerOn(false);
       });
   };
@@ -152,16 +136,21 @@ export default function App() {
     axiosWithAuth()
       .delete(`${articlesUrl}/${article_id}`)
       .then((res) => {
-        setArticles((prevArticles) =>
-          prevArticles.filter((article) => article.article_id !== article_id)
+        setArticles(
+          articles.filter((article) => article.article_id !== article_id)
         );
         setMessage(res.data.message);
+        setSpinnerOn(false);
       })
       .catch((err) => {
-        setMessage("Failed to delete article.");
+        setMessage(err.response.message);
+        setSpinnerOn(false);
       });
   };
 
+  const currentArticle = articles
+    ? articles.find((article) => article.article_id === currentArticleId)
+    : null;
   return (
     // ✨ fix the JSX: `Spinner`, `Message`, `LoginForm`, `ArticleForm` and `Articles` expect props ❗
     <>
@@ -189,17 +178,19 @@ export default function App() {
             element={
               <>
                 <ArticleForm
+                  currentArticle={currentArticle}
+                  setCurrentArticleId={setCurrentArticleId}
                   postArticle={postArticle}
                   updateArticle={updateArticle}
-                  setCurrentArticleId={setCurrentArticleId}
-                  currentArticle={null}
+                  currentArticleId={currentArticleId}
                 />
                 <Articles
                   articles={articles}
                   getArticles={getArticles}
                   deleteArticle={deleteArticle}
+                  updateArticle={updateArticle}
                   setCurrentArticleId={setCurrentArticleId}
-                  currentArticleId={null}
+                  currentArticleId={currentArticleId}
                 />
               </>
             }

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react'
 import PT from 'prop-types'
 
 
+
 const initialFormValues = { title: '', text: '', topic: '' }
 
 export default function ArticleForm(props) {
   const [values, setValues] = useState(initialFormValues)
  
   // ✨ where are my props? Destructure them here
-const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, currentArticle} = props;
+const {postArticle, updateArticle, setCurrentArticleId, currentArticle} = props;
   
   useEffect(() => {
     console.log('currentArticle in useEffect:', currentArticle)
@@ -16,19 +17,18 @@ const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, curren
     // Every time the `currentArticle` prop changes, we should check it for truthiness:
     // if it's truthy, we should set its title, text and topic into the corresponding
     // values of the form. If it's not, we should reset the form back to initial values.
- 
+    if(currentArticle) {
+      setValues({
+       title:currentArticle.title,
+       text: currentArticle.text,
+       topic: currentArticle.topic
 
-     if(currentArticle) {
-      
-       setValues({
-         title: {currentArticle:title}, 
-         text: {currentArticle: text}, 
-         topic: {currentArticle:topic}
-      })
-
+      }) 
     }else {
-       setValues(initialFormValues);
-     }
+      setValues(initialFormValues)
+    }
+
+
    }, [currentArticle])
 
   const onChange = evt => {
@@ -42,27 +42,39 @@ const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, curren
   }
 
   const onSubmit = evt => {
-  console.log('currentArticle in onSubmit:', currentArticleId)
-  console.log('current article:', currentArticleId)
+  console.log('currentArticle in onSubmit:', currentArticle)
+  console.log('current article:', currentArticle)
     // ✨ implement
     // We must submit a new post or update an existing one,
     // depending on the truthyness of the `currentArticle` prop.
     evt.preventDefault();
-  
-
-  if(currentArticle) {
-    updateArticle({ article_id: currentArticle.article_id, article: values });
-  } else {
-    postArticle(values);
-  }
-  
-  setValues(initialFormValues);
-    };
+   if(currentArticle){
+   updateArticle({
+    article_id: currentArticle.article_id,
+    article: {
+      title: values.title,
+      text: values.text,
+      topic: values.topic
+    }
+   })
+   }else {
+    postArticle({
+      title: values.title,
+      text: values.text,
+      topic: values.topic
+    })
+    
+   }
+   setValues(initialFormValues)
+   setCurrentArticleId(null)
+   
+ 
+     };
 
   const isDisabled = () => {
     // ✨ implement
     // Make sure the inputs have some values
-    return !values.title || !values.text || !values.topic 
+    return values.title && values.text && values.topic ? false : true;
   }
 
   
@@ -94,8 +106,9 @@ const {postArticle, updateArticle, setCurrentArticleId, currentArticleId, curren
         <option value="Node">Node</option>
       </select>
       <div className="button-group">
-        <button disabled={isDisabled()} id="submitArticle">Submit</button>
+        <button disabled={isDisabled()}  id="submitArticle">Submit</button>
         <button onClick={() => setCurrentArticleId(null)}>Cancel edit</button>
+       
       </div>
     </form>
   )
